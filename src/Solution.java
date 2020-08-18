@@ -1,44 +1,59 @@
 public class Solution {
+    private static final String[] HOUR_NUM = {"midnight", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
+            "twelve", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "midnight"};
+    private static final String[] MIN_NUM = {"", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
+            "twelve", "thirteen", "fourteen", "quarter", "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "twenty one", "twenty two", "twenty three", "twenty four", "twenty five", "twenty six", "twenty seven", "twenty eight", "twenty nine", "half"};
+    private static final String O_CLOCK = "o'clock";
+    private static final String MINUTE = "minute";
+    private static final String MINUTES = "minutes";
+    private static final String PAST = "past";
+    private static final String TO = "to";
+    private static final int MINUTES_IN_HOUR = 60;
+
     public static String solve(String time){
-        final String[] NUMBERS = { "midnight", "one ", "two ", "three ", "four ", "five ", "six ", "seven ", "eight ", "nine ", "ten ", "eleven ",
-                "twelve ", "thirteen ", "fourteen ", "", "sixteen ", "seventeen ", "eighteen ", "nineteen ", "twenty ", "", "", "eleven ", "midnight "};
-        final String[] PHRASES = {"o'clock", "quarter to ", "quarter past ", "half past ", "minutes past ", "minutes to ", "one minute to ", "one minute past "};
 
-        String retStatement = "";
+       final String[] timeArr = time.split(":");
+       final int minutes = Integer.parseInt(timeArr[1]);
+       final int hour = Integer.parseInt(timeArr[0]);
+       final StringBuilder output = new StringBuilder();
 
-        String[] timeArr = time.split(":");
-        int minutes = Integer.parseInt(timeArr[1]);
-        int hour = Integer.parseInt(timeArr[0]);
-        if(hour > 12 & hour != 23){
-           hour -= 12;
+
+       if(minutes == 0){
+           output.append(HOUR_NUM[hour]);
+           if(hour == 0){
+               return output.toString();
+           }else{
+               return output.append(" " + O_CLOCK).toString();
+           }
+       }
+
+        final boolean bottomOfHour = (minutes >= 31);
+        final int refactoredMin;
+        final int refactoredHour;
+        final String minutesReferenceDirection;
+        if(bottomOfHour){
+            refactoredMin = MINUTES_IN_HOUR - minutes;
+            refactoredHour = hour + 1;
+            minutesReferenceDirection = TO;
         }
-        if(minutes == 0 & hour == 0) {
-            return NUMBERS[24].trim();
-        } else if(minutes == 0){
-            return NUMBERS[hour] + PHRASES[0].trim();
-        } else if(minutes == 30){
-            return PHRASES[3] + NUMBERS[hour].trim();
-        } else if(minutes == 15){
-            return  PHRASES[2] + NUMBERS[hour].trim();
-        }else if(minutes == 45){
-            hour = (hour ==(12 | 23))? hour : hour%12;
-            return PHRASES[1] + NUMBERS[hour+1].trim();
-        }else if(minutes == 1) {
-            return PHRASES[7] + NUMBERS[hour].trim();
-        }else if(minutes ==59) {
-            hour = (hour ==(12 | 23))? hour : hour%12;
-            return PHRASES[6] + NUMBERS[hour+1].trim();
-        }else if(minutes <= 20){
-            return NUMBERS[minutes] + PHRASES[4] + NUMBERS[hour].trim();
-        } else if(minutes < 30){
-            return NUMBERS[20] + NUMBERS[minutes-20] + PHRASES[4] + NUMBERS[hour].trim();
-        } else if(minutes < 40){
-            hour = (hour ==(12 | 23))? hour : hour%12;
-            return NUMBERS[20] + NUMBERS[40 - minutes] + PHRASES[5] + NUMBERS[hour+1].trim();
-        } else if(minutes >= 40){
-            return NUMBERS[60 - minutes] + PHRASES[5] + NUMBERS[hour+1].trim();
+        else{
+            refactoredMin = minutes;
+            refactoredHour = hour;
+            minutesReferenceDirection = PAST;
         }
 
-        return "its broken";
+        output.append(MIN_NUM[refactoredMin]);
+        if(refactoredMin == 1){
+            output.append(" " + MINUTE);
+        }
+        else if((refactoredMin != 15) && (refactoredMin != 30)){
+            output.append(" " + MINUTES);
+        }
+
+        output.append(" " + minutesReferenceDirection);
+
+        output.append(" " + HOUR_NUM[refactoredHour]);
+
+        return output.toString();
     }
 }
